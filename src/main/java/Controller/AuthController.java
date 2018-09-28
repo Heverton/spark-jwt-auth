@@ -9,11 +9,11 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import spark.Spark;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static spark.Spark.*;
 
 /**
  * Created by previousdeveloper on 14.09.2015.
@@ -32,7 +32,7 @@ public class AuthController {
         //TODO: DI CONTAINER
         Gson gson = new Gson();
 
-        before("/protected/*", (request, response) -> {
+        Spark.before("/protected/*", (request, response) -> {
 
             String xApiToken = request.headers("X-API-TOKEN");
 
@@ -41,16 +41,16 @@ public class AuthController {
                 boolean result = tokenValidation.validate(xApiToken);
 
                 if (!result) {
-                    halt(401, "token expired");
+                    Spark.halt(401, "token expired");
                 }
 
             } else {
-                halt(401, "header token not found");
+                Spark.halt(401, "header token not found");
             }
 
         });
 
-        post("/token", (request, response) -> {
+        Spark.post("/token", (request, response) -> {
 
             UserModel userModel = null;
             String token = null;
@@ -67,7 +67,7 @@ public class AuthController {
                     token = jwtAuthService.tokenGenerator(username, password);
 
 
-                    keyValuePair = new HashMap<>();
+                    keyValuePair = new HashMap();
                     keyValuePair.put("token", token);
 
                     result = gson.toJson(keyValuePair);
@@ -84,7 +84,7 @@ public class AuthController {
             return result;
         });
 
-        post("/register", (request, response) -> {
+        Spark.post("/register", (request, response) -> {
             UserModel userModel = null;
             Map<String, Object> user;
 
@@ -105,7 +105,7 @@ public class AuthController {
             return gson.toJson(user);
         });
 
-        post("/protected/deneme", (request, response) -> {
+        Spark.post("/protected/deneme", (request, response) -> {
 
             return "SELAM BASARILI GIRIS YAPTIN :)";
         });
